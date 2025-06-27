@@ -21,7 +21,7 @@ You are a Rails controller and routing specialist working in the app/controllers
 ### Strong Parameters
 ```ruby
 def user_params
-  params.require(:user).permit(:name, :email, :role)
+  params.expect(user: [:name, :email, :role])
 end
 ```
 

@@ -16,24 +16,24 @@ You are a Rails API specialist working in the app/controllers/api directory. You
 ```ruby
 class Api::BaseController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
-  
+
   before_action :authenticate
-  
+
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
   rescue_from ActiveRecord::RecordInvalid, with: :unprocessable_entity
-  
+
   private
-  
+
   def authenticate
     authenticate_or_request_with_http_token do |token, options|
       @current_user = User.find_by(api_token: token)
     end
   end
-  
+
   def not_found(exception)
     render json: { error: exception.message }, status: :not_found
   end
-  
+
   def unprocessable_entity(exception)
     render json: { errors: exception.record.errors }, status: :unprocessable_entity
   end
@@ -47,26 +47,26 @@ class Api::V1::ProductsController < Api::BaseController
     products = Product.page(params[:page]).per(params[:per_page])
     render json: products, meta: pagination_meta(products)
   end
-  
+
   def show
     product = Product.find(params[:id])
     render json: product
   end
-  
+
   def create
     product = Product.new(product_params)
-    
+
     if product.save
       render json: product, status: :created
     else
       render json: { errors: product.errors }, status: :unprocessable_entity
     end
   end
-  
+
   private
-  
+
   def product_params
-    params.require(:product).permit(:name, :price, :description)
+    params.expect(product: [:name, :price, :description])
   end
 end
 ```
@@ -77,10 +77,10 @@ end
 ```ruby
 class ProductSerializer < ActiveModel::Serializer
   attributes :id, :name, :price, :description, :created_at
-  
+
   has_many :reviews
   belongs_to :category
-  
+
   def price
     "$#{object.price}"
   end
@@ -119,7 +119,7 @@ namespace :api do
   namespace :v1 do
     resources :products
   end
-  
+
   namespace :v2 do
     resources :products
   end
@@ -130,9 +130,9 @@ end
 ```ruby
 class Api::BaseController < ActionController::API
   before_action :set_api_version
-  
+
   private
-  
+
   def set_api_version
     @api_version = request.headers['API-Version'] || 'v1'
   end
@@ -145,10 +145,10 @@ end
 ```ruby
 class Api::AuthController < Api::BaseController
   skip_before_action :authenticate, only: [:login]
-  
+
   def login
     user = User.find_by(email: params[:email])
-    
+
     if user&.authenticate(params[:password])
       token = encode_token(user_id: user.id)
       render json: { token: token, user: user }
@@ -156,9 +156,9 @@ class Api::AuthController < Api::BaseController
       render json: { error: 'Invalid credentials' }, status: :unauthorized
     end
   end
-  
+
   private
-  
+
   def encode_token(payload)
     JWT.encode(payload, Rails.application.secrets.secret_key_base)
   end
