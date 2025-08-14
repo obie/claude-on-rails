@@ -1,0 +1,138 @@
+version: 1
+swarm:
+  name: "<%= Rails.application.class.module_parent_name %> Rails Development Team"
+  main: architect
+<% if @include_mcp_server %>
+  mcps:
+    - name: rails
+      type: stdio
+      command: rails-mcp-server
+      args: []
+      env:
+        RAILS_ENV: <%= Rails.env %>
+<% if @include_dev_mcp %>
+    - name: rails-dev
+      type: stdio
+      command: rails-dev-mcp
+      args: []
+<% end %>
+<% end %>
+  instances:
+    architect:
+      description: "Rails architect coordinating <%= @api_only ? 'API' : 'full-stack' %> development for <%= Rails.application.class.module_parent_name %>"
+      directory: .
+      model: opus
+      connections: [<%= agents.reject { |a| a == 'architect' }.join(', ') %>]
+      prompt_file: .claude-on-rails/prompts/architect.md
+      vibe: true
+<% if File.directory?(Rails.root.join("app/models")) %>
+    
+    models:
+      description: "ActiveRecord models, migrations, and database optimization specialist"
+      directory: ./app/models
+      model: opus
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/models.md
+<% end %>
+<% if File.directory?(Rails.root.join("app/controllers")) %>
+      
+    controllers:
+      description: "Rails controllers, routing, and request handling specialist"
+      directory: ./app/controllers
+      model: opus
+<% connections = [] %>
+<% connections << 'services' if File.directory?(Rails.root.join("app/services")) %>
+<% connections << 'api' if @api_only && File.directory?(Rails.root.join("app/controllers/api")) %>
+<% if connections.any? %>
+      connections: [<%= connections.join(', ') %>]
+<% end %>
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/controllers.md
+<% end %>
+<% if !@api_only && File.directory?(Rails.root.join("app/views")) %>
+    
+    views:
+      description: "Rails views, layouts, partials, and asset pipeline specialist"
+      directory: ./app/views
+      model: opus
+<% if @has_turbo && File.directory?(Rails.root.join("app/javascript")) %>
+      connections: [stimulus]
+<% end %>
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/views.md
+<% end %>
+<% if @api_only && File.directory?(Rails.root.join("app/controllers/api")) %>
+    
+    api:
+      description: "RESTful API design, serialization, and versioning specialist"
+      directory: ./app/controllers/api
+      model: opus
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/api.md
+<% end %>
+<% if @has_graphql && File.directory?(Rails.root.join("app/graphql")) %>
+    
+    graphql:
+      description: "GraphQL schema, resolvers, and mutations specialist"
+      directory: ./app/graphql
+      model: opus
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/graphql.md
+<% end %>
+<% if @has_turbo && File.directory?(Rails.root.join("app/javascript")) %>
+    
+    stimulus:
+      description: "Stimulus.js controllers and Turbo integration specialist"
+      directory: ./app/javascript
+      model: opus
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/stimulus.md
+<% end %>
+<% if File.directory?(Rails.root.join("app/services")) %>
+    
+    services:
+      description: "Service objects, business logic, and design patterns specialist"
+      directory: ./app/services
+      model: opus
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/services.md
+<% end %>
+<% if File.directory?(Rails.root.join("app/jobs")) %>
+      
+    jobs:
+      description: "Background jobs, ActiveJob, and async processing specialist"
+      directory: ./app/jobs
+      model: opus
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/jobs.md
+<% end %>
+<% if !@skip_tests %>
+<% test_dir = @test_framework == 'RSpec' ? 'spec' : 'test' %>
+<% if File.directory?(Rails.root.join(test_dir)) %>
+    
+    tests:
+      description: "<%= @test_framework %> testing, factories, and test coverage specialist"
+      directory: ./<%= test_dir %>
+      model: opus
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/tests.md
+<% end %>
+<% end %>
+<% if File.directory?(Rails.root.join("config")) %>
+    
+    devops:
+      description: "Deployment, Docker, CI/CD, and production configuration specialist"
+      directory: ./config
+      model: opus
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/devops.md
+<% end %>
+<% if @has_git %>
+    
+    git:
+      description: "Git repository management, version control, and collaboration specialist"
+      directory: .
+      model: opus
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/git.md
+<% end %>

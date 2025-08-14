@@ -1,68 +1,59 @@
-# ClaudeOnRails Configuration
+# ClaudeOnRails Development
 
-Welcome to ClaudeOnRails - A specialized development framework for Ruby on Rails developers using Claude Code.
+## Project Overview
 
-## Framework Philosophy
+ClaudeOnRails is a Ruby gem that leverages claude-swarm to create intelligent AI agent teams for Rails development. It generates swarm configurations that allow developers to describe what they want to build in natural language, and the swarm coordinates implementation across all Rails layers.
 
-ClaudeOnRails enhances Claude Code with Rails-specific expertise, following these principles:
-- **Convention over Configuration**: Embrace Rails conventions
-- **Test-Driven Development**: Tests are first-class citizens
-- **Performance by Default**: Optimize from the start
-- **Security First**: Built-in security best practices
-- **Documentation Matters**: Clear, maintainable code
+## Guidelines
 
-## Core Configuration
+### 1. File References in Claude
+- Use `@filepath` syntax for file references, not `/file:filepath`
+- File references are the preferred way to include content without duplicating it
 
-@include .claude-on-rails/shared/claude-on-rails-core.yml
-@include .claude-on-rails/shared/claude-on-rails-personas.yml
-@include .claude-on-rails/shared/claude-on-rails-patterns.yml
-@include .claude-on-rails/shared/claude-on-rails-conventions.yml
+### 2. Never Overwrite User Configuration
+- Always check if CLAUDE.md exists before writing to it
+- Use file references to include framework content rather than appending
+- Store framework-specific content in separate files (e.g., `.claude-on-rails/context.md`)
 
-## Available Commands
+### 3. Claude-Swarm Integration
+- The default configuration file is `claude-swarm.yml`, not `swarm.yml`
+- Command is simply `claude-swarm`, not `claude-swarm orchestrate`
+- claude-swarm is a dependency, so no need to tell users to install it separately
 
-### Rails Development
-@include .claude-on-rails/commands/rails/generate.md
-@include .claude-on-rails/commands/rails/migrate.md
-@include .claude-on-rails/commands/rails/console.md
-@include .claude-on-rails/commands/rails/routes.md
+### 4. Documentation Clarity
+- Clearly distinguish between shell commands and Claude prompts
+- Use `>` prefix for Claude prompts to avoid confusion with bash commands
+- Be explicit about where commands should be run vs where prompts should be typed
 
-### Testing
-@include .claude-on-rails/commands/testing/suite.md
-@include .claude-on-rails/commands/testing/coverage.md
-@include .claude-on-rails/commands/testing/performance.md
+### 5. Ruby Gem Best Practices
+- Keep development dependencies in Gemfile, not gemspec (RuboCop rule)
+- Always run `bundle exec rake` before committing changes to catch syntax and style issues
+- Use `bundle exec rake release` for gem releases (creates tag, pushes to RubyGems)
+- ...then create GitHub releases separately with `gh release create`
 
-### Optimization
-@include .claude-on-rails/commands/optimization/queries.md
-@include .claude-on-rails/commands/optimization/assets.md
-@include .claude-on-rails/commands/optimization/cache.md
+### 6. Generator Best Practices
+- Check for directory existence before creating agents
+- Make generators idempotent (running multiple times shouldn't duplicate content)
+- Provide clear next steps after generation
+- Show what will be created during the analysis phase
 
-## MCP Integration
+### 7. Testing Considerations
+- Make sure that user confirms that they have tested changes with a real Rails project before releasing
+- Consider different Rails configurations (API-only, full-stack, with/without GraphQL)
+- **IMPORTANT**: This project uses RSpec exclusively for testing. NEVER use Minitest or any other testing framework. Do not add minitest gems, create test/ directories, or write any Minitest-style tests. All tests must be written in RSpec format and placed in the spec/ directory.
 
-When Rails MCP Server is available, ClaudeOnRails automatically integrates with:
-- Rails Guides documentation
-- Turbo framework documentation
-- Stimulus framework documentation
-- Kamal deployment documentation
-- Custom project documentation
+## Workflow Guidance
 
-## Session Management
+- For maximum efficiency, whenever you need to perform multiple independent operations, invoke all relevant tools simultaneously rather than sequentially.
+- When you're tempted to respond and return control to me with a message like "The codebase is now in excellent shape with 859 passing tests, 1 failing test, and 5 pending tests. The project is ready for the v0.2.0 release once the team decides how to handle the final test (either fix it or mark it as pending)." then instead, you should  decide how to handle the final test _first_.
 
-ClaudeOnRails maintains context throughout your development session:
-- Active persona state
-- Command history
-- Documentation references
-- Project-specific patterns
+## Release Guidance
 
-## Getting Started
+- Note that releases are never ready if there are any tests failing in the test suites. Never tell me that a release is ready unless we have a clean build.
 
-1. Choose a persona based on your task
-2. Use specialized commands for Rails operations
-3. Leverage integrated documentation
-4. Follow suggested best practices
+## Architecture Notes
 
-Example workflow:
-```bash
-claude "/rails generate model User --persona-rails-architect --with-tests"
-claude "/test-suite --persona-testing"
-claude "/optimize-queries --persona-performance"
-```
+- The gem analyzes Rails projects to detect patterns and frameworks
+- It generates customized swarm configurations based on project structure
+- Each agent works in a specific directory (MVC separation)
+- Agents communicate via MCP protocol in claude-swarm

@@ -1,0 +1,63 @@
+AllCops:
+  TargetRubyVersion: 3.3
+  NewCops: enable
+  SuggestExtensions: false
+  Exclude:
+    - 'vendor/**/*'
+    - 'tmp/**/*'
+    - 'bin/**/*'
+    - 'spec/fixtures/**/*'
+
+plugins:
+  - rubocop-rake
+
+# Allow hyphenated filename to match gem name
+Naming/FileName:
+  Exclude:
+    - 'lib/claude-on-rails.rb'
+
+
+# Relaxed metrics for DSL-heavy library code
+Metrics/MethodLength:
+  Max: 20
+  Exclude:
+    - 'spec/**/*'
+
+Metrics/ClassLength:
+  Max: 150
+  Exclude:
+    - 'spec/**/*'
+
+Metrics/BlockLength:
+  Max: 30
+  Exclude:
+    - 'spec/**/*'
+    - '*.gemspec'
+
+Metrics/AbcSize:
+  Max: 25
+
+Metrics/CyclomaticComplexity:
+  Max: 10
+
+Metrics/ParameterLists:
+  Max: 6
+
+# Documentation is nice but not required for internal classes
+Style/Documentation:
+  Enabled: false
+
+Style/StringLiterals:
+  Enabled: false
+
+# Allow longer lines for readability
+Layout/LineLength:
+  Max: 120
+  Exclude:
+    - 'spec/**/*'
+
+Gemspec/RequireMFA:
+  Enabled: false
+
+Metrics:
+  Enabled: false
