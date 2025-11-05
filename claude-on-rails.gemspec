@@ -32,7 +32,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   # Runtime dependencies
-  spec.add_dependency 'claude_swarm', '~> 0.1'
+  spec.add_dependency 'claude_swarm', '~> 1.0'
   spec.add_dependency 'rails', '>= 6.0'
 
   # Development dependencies are specified in Gemfile
