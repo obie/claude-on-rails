@@ -45,7 +45,7 @@ ClaudeOnRails is a Ruby gem that leverages claude-swarm to create intelligent AI
 ## Workflow Guidance
 
 - For maximum efficiency, whenever you need to perform multiple independent operations, invoke all relevant tools simultaneously rather than sequentially.
-- When you're tempted to respond and return control to me with a message like "The codebase is now in excellent shape with 859 passing tests, 1 failing test, and 5 pending tests. The project is ready for the v0.2.0 release once the team decides how to handle the final test (either fix it or mark it as pending)." then instead, you should  decide how to handle the final test _first_.
+- When you're tempted to respond and return control to me with a message like "The codebase is now in excellent shape with 859 passing tests, 1 failing test, and 5 pending tests. The project is ready for the v0.2.0 release once the team decides how to handle the final test (either fix it or mark it as pending)." then instead, you should decide how to handle the final test _first_.
 
 ## Release Guidance
 
