@@ -109,10 +109,10 @@ module ClaudeOnRails
       # Check for various deployment configurations
       return 'kubernetes' if File.exist?(File.join(root_path, 'k8s')) ||
                              File.exist?(File.join(root_path, 'kubernetes'))
+      return 'kamal' if File.exist?(File.join(root_path, 'config', 'deploy.yml'))
       return 'docker' if File.exist?(File.join(root_path, 'Dockerfile'))
       return 'capistrano' if File.exist?(File.join(root_path, 'Capfile'))
       return 'heroku' if File.exist?(File.join(root_path, 'Procfile'))
-      return 'kamal' if File.exist?(File.join(root_path, 'config', 'deploy.yml'))
 
       'unknown'
     end

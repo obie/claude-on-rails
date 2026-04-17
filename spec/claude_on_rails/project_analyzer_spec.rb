@@ -101,6 +101,39 @@ RSpec.describe ClaudeOnRails::ProjectAnalyzer do
       end
     end
 
+    context 'deployment detection' do
+      it 'detects Kamal when config/deploy.yml and Dockerfile both exist' do
+        FileUtils.mkdir_p(File.join(tmpdir, 'config'))
+        File.write(File.join(tmpdir, 'config', 'deploy.yml'), 'service: my-app')
+        File.write(File.join(tmpdir, 'Dockerfile'), 'FROM ruby:3.3')
+        expect(analyzer.analyze[:deployment]).to eq 'kamal'
+      end
+
+      it 'detects Docker when only Dockerfile exists' do
+        File.write(File.join(tmpdir, 'Dockerfile'), 'FROM ruby:3.3')
+        expect(analyzer.analyze[:deployment]).to eq 'docker'
+      end
+
+      it 'detects Kubernetes when k8s directory exists' do
+        FileUtils.mkdir_p(File.join(tmpdir, 'k8s'))
+        expect(analyzer.analyze[:deployment]).to eq 'kubernetes'
+      end
+
+      it 'detects Capistrano when Capfile exists' do
+        File.write(File.join(tmpdir, 'Capfile'), '')
+        expect(analyzer.analyze[:deployment]).to eq 'capistrano'
+      end
+
+      it 'detects Heroku when Procfile exists' do
+        File.write(File.join(tmpdir, 'Procfile'), 'web: bundle exec rails server')
+        expect(analyzer.analyze[:deployment]).to eq 'heroku'
+      end
+
+      it 'returns unknown when no deployment config is found' do
+        expect(analyzer.analyze[:deployment]).to eq 'unknown'
+      end
+    end
+
     context 'custom patterns detection' do
       it 'detects service objects directory' do
         FileUtils.mkdir_p(File.join(tmpdir, 'app', 'services'))
