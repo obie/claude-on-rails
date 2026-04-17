@@ -29,7 +29,7 @@ module ClaudeOnRails
       application_rb = File.join(root_path, 'config', 'application.rb')
       return false unless File.exist?(application_rb)
 
-      File.read(application_rb).include?('config.api_only = true')
+      File.read(application_rb).match?(/^\s*config\.api_only\s*=\s*true\b/)
     end
 
     def detect_test_framework

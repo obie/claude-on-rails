@@ -55,6 +55,27 @@ RSpec.describe ClaudeOnRails::ProjectAnalyzer do
       end
     end
 
+    context 'with api_only commented out (default new Rails app)' do
+      before do
+        FileUtils.mkdir_p(File.join(tmpdir, 'config'))
+        File.write(File.join(tmpdir, 'config', 'application.rb'),
+                   <<~RUBY)
+                     module MyApp
+                       class Application < Rails::Application
+                         # Only loads a smaller set of middleware suitable for API only apps.
+                         # Middleware like session, flash, cookies can be added back manually.
+                         # Skip views, helpers and assets when generating a new resource.
+                         # config.api_only = true
+                       end
+                     end
+                   RUBY
+      end
+
+      it 'does not detect API-only when the line is commented out' do
+        expect(analyzer.analyze[:api_only]).to be false
+      end
+    end
+
     context 'test framework detection' do
       it 'detects RSpec' do
         FileUtils.mkdir_p(File.join(tmpdir, 'spec'))
